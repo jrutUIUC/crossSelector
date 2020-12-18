@@ -1,0 +1,110 @@
+library(reshape)
+library(gdata)
+#Crosses desired
+cm<- read.csv("CrossingMatrix2019_2020.csv", as.is=TRUE, row.names=1)
+upperTriangle(cm) <- lowerTriangle(cm, byrow=TRUE)
+colnames(cm)<- paste("IL", row.names(cm), sep="")
+cm<- data.frame(id=row.names(cm), cm)
+mcm<- melt(cm)
+mcm[,2]<- gsub(".", "-", mcm[,2], fixed=TRUE)
+mcm[,2]<- gsub("IL", "", mcm[,2], fixed=TRUE)
+
+mcm<- data.frame(mcm, rank=NA, note="", ht=NA, julian=NA, yield=NA, twt=NA, isk=NA)
+mcm$note<- as.character(mcm$note)
+
+#all potential combinations
+tblAll<- read.csv('All potential combinations.csv', row.names=1)
+tblAll$cross_made<- as.character(tblAll$cross_made)
+tblAll[which(is.na(tblAll$cross_made)),"cross_made"]<- ""
+
+#Crosses already made
+F1a<- read.csv("2019 Wheat F1s.csv")
+F1b<- read.csv("2020 F3 Bulks.csv")
+crossesA<- paste(tblAll$p1, tblAll$p2, sep="/")
+crossesB<- paste(tblAll$p2, tblAll$p1, sep="/")
+crossesMade2019<- c(which(crossesA %in% gsub(" ", "", F1a[,3])), which(crossesB %in% gsub(" ", "", F1a[,3])))
+crossesMade2018<- c(which(crossesA %in% gsub(" ", "", F1b[,3])), which(crossesB %in% gsub(" ", "", F1b[,3])))
+tblAll[crossesMade2019,"cross_made"]<- "cross made in 2019"
+tblAll[crossesMade2018,"cross_made"]<- "cross made in 2018"
+tblAll<- data.frame(tblAll, rank=1:nrow(tblAll))
+tblAll[,1]<- as.character(tblAll[,1])
+tblAll[,2]<- as.character(tblAll[,2])
+
+#prioritize crosses
+for(i in 1:nrow(mcm)){
+  if(mcm[i,1]!=mcm[i,2]){
+    ix<- c(intersect(which(mcm[i,1]==tblAll[,1]), which(mcm[i,2]==tblAll[,2])), intersect(which(mcm[i,2]==tblAll[,1]), which(mcm[i,1]==tblAll[,2])))
+    if(length(ix)!=0){
+      mcm[i,'rank']<- tblAll[ix,'rank']
+      mcm[i,'ht']<- tblAll[ix,'ht']
+      mcm[i,'julian']<- tblAll[ix,'julian']
+      mcm[i,'yield']<- tblAll[ix,'yield']
+      mcm[i,'twt']<- tblAll[ix,'twt']
+      mcm[i,'isk']<- tblAll[ix,'isk']
+      mcm[i,'note']<- as.character(tblAll[ix,'cross_made'])
+      }
+    }
+}
+ 
+mcm$value<- as.character(mcm$value) 
+mcm[grep('cross made', mcm$note),'value']<- 'x'
+#rank 321 and lower has been selected as top priority, unless already made or too tall  
+
+#rank 322- 613, second priority
+mcm[intersect(which(mcm$value==1),which(mcm$rank<322)),'note']<- 'top1/3'
+mcm[intersect(which(mcm$value==0),which(mcm$rank<613)),'note']<- 'top1/2'
+mcm[intersect(which(mcm$value==0),which(mcm$rank<919)),'note']<- 'top2/3'
+mcm[intersect(which(mcm$value==0),which(mcm$rank<613)),'value']<- '2'
+mcm[intersect(which(mcm$value==0),which(mcm$rank<919)),'value']<- '3'
+
+
+#under the following conditions, crosses will be excluded
+mcm[which(mcm$ht>37),'note']<- paste(mcm[which(mcm$ht>37),'note'], 'TT', sep=" ")
+mcm[which(mcm$yield<78),'note']<- paste(mcm[which(mcm$yield<78),'note'], 'LwYld', sep=" ")
+mcm[which(mcm$twt<55.5),'note']<- paste(mcm[which(mcm$twt<55.5),'note'], 'LwTwt', sep=" ")
+mcm[which(mcm$julian>132),'note']<- paste(mcm[which(mcm$julian>132),'note'], 'Late', sep=" ")
+mcm[which(mcm$ht>37),'value']<- '0'
+mcm[which(mcm$yield<78),'value']<- '0'
+mcm[which(mcm$twt<55.5),'value']<- '0'
+mcm[which(mcm$julian>132),'value']<- '0'
+
+#OH and W parents can get crossed to any IL parent
+mcm[intersect(which(mcm$value==0),grep('OH', mcm$id)),'value']<- '2'
+mcm[intersect(which(mcm$variable==0),grep('OH', mcm$id)),'value']<- '2'
+mcm[intersect(which(mcm$value==0),grep('W', mcm$id)),'value']<- '2'
+mcm[intersect(grep('OH', mcm$variable),grep('W', mcm$id)),'value']<- '0'
+
+#trim white space
+mcm$note<- trimws(mcm$note)
+
+#create matrices
+mcm$variable<- gsub("US", "", mcm$variable)
+mcm$id<- gsub("US", "", mcm$id)
+mat1<- cast(mcm, formula= id~variable, value='value')
+colnames(mcm)[3]<- 'decision'
+colnames(mcm)[5]<- 'value'
+mat2<- cast(mcm, formula= id~variable)
+
+#save files
+colnames(mat1)<- paste('name:', colnames(mat1))
+colnames(mat1)[1]<- 'id'
+mat1$id<- paste('name:', mat1$id)
+colnames(mat2)<- paste('name:', colnames(mat2))
+colnames(mat2)[1]<- 'id'
+mat2$id<- paste('name:', mat2$id)
+
+#make symmetric
+row.names(mat2)<- mat2[,1]
+row.names(mat1)<- mat1[,1]
+mat2<- mat2[,-1]
+mat1<- mat1[,-1]
+
+mat1[] <- lapply(mat1, as.character)
+mat2[] <- lapply(mat2, as.character)
+upperTriangle(mat1) <- lowerTriangle(mat1, byrow=TRUE)
+upperTriangle(mat2) <- lowerTriangle(mat2, byrow=TRUE)
+
+table(unlist(mat1[1:52, 1:52]))
+
+write.csv(mat1, file='crossing decision matrix 2020.csv')
+write.csv(mat2, file='crossing note matrix 2020.csv')
