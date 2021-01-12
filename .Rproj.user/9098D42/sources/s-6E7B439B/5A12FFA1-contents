@@ -23,7 +23,7 @@ idTop<- function(males, females, q){
   q1<- data.frame(V1no, V2no)
   tab<- merge(q1, q, by=c('V1no', 'V2no'), all.x=TRUE)
   tab<- na.omit(tab[order(tab$nmvec, decreasing=TRUE),])
-  selected<- tab[i,]
+  selected<- tab[1,]
   return(selected)
 }
 
@@ -54,8 +54,10 @@ matchParents<- function(q, males, females, crossesMade, maxRepeat){
       femaleRm<- top[1,'V1no']
       V1no<- append(V1no, femaleRm)
       V2no<- append(V2no, maleRm)
-      males<- setdiff(males, maleRm)
-      females<- setdiff(females, femaleRm)
+      ixrm1<- match(maleRm, males)
+      ixrm2<- match(femaleRm, females)
+      males<- males[-ixrm1]
+      females<- females[-ixrm2]
     }else{
       break
     }
@@ -75,14 +77,16 @@ ui <- pageWithSidebar(
   headerPanel('Match parents'),
   sidebarPanel(
     fluidRow(column(12,
-                    textAreaInput("males", "Males", value = "8, 38", width = '100%', rows = 5, resize = "both"))),
+                    textAreaInput("males", "Males", value = "8, 38", width = '100%', rows = 3, resize = "both"))),
     fluidRow(column(12,
-                    textAreaInput("females", "Females", value = "7, 25", width = '100%', rows = 5, resize = "both"))),
+                    textAreaInput("females", "Females", value = "7, 25", width = '100%', rows = 3, resize = "both"))),
     fluidRow(column(12,
-                    textAreaInput("crossesMade", "Crosses made", value = "7x15, 38x7", width = '100%', rows = 5, resize = "both"))),
+                    textAreaInput("crossesMade", "Crosses made",
+                                  value = "16x25, 14x25, 39x34, 39x25, 3x14, 14x34, 30x34, 7x36, 36x25, 39x25, 38x25, 28x14, 38x36, 39x7, 14x34, 39x36, 36x39, 7x36, 29x7, 30x14, 14x34, 38x25, 38x25, 25x39, 30x36, 3x14, 36x14", width = '100%', rows = 3, resize = "both"))),
     fluidRow(column(12,
-                    textAreaInput("maxRepeat", "Max repeats", value = "5", width = '100%', rows = 1, resize = "both")))),
-    mainPanel(fluidRow(column(12,tableOutput('table'))))
+                    textAreaInput("maxRepeat", "Max repeats", value = "5", width = '100%', rows = 1, resize = "both"))),
+    submitButton("Apply Changes")), #place a submit into the UI.
+  mainPanel(fluidRow(column(12,tableOutput('table'))))
 )
 
 # Define server logic required
@@ -90,6 +94,7 @@ server <- function(input, output) {
   output$table <- renderTable({
 
     #males
+    spl<- ", "
     if(length(grep(' ', input$males))){
       spl= " "
     }
@@ -102,6 +107,7 @@ server <- function(input, output) {
     males<- as.numeric(trimws(strsplit(input$males, split=spl)[[1]]))
 
     #females
+    spl<- ", "
     if(length(grep(' ', input$females))){
       spl= " "
     }
@@ -114,6 +120,7 @@ server <- function(input, output) {
     females<- as.numeric(trimws(strsplit(input$females, split=spl)[[1]]))
 
     #crosses made
+    spl<- ", "
     if(length(grep(' ', input$crossesMade))){
       spl= " "
     }
