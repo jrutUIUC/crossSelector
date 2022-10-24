@@ -1,0 +1,21 @@
+data(crossRank22_23)
+q<- q[,c('V1no', 'V2no', 'V1', 'V2','nmvec', 'rank', 'timesMade')]
+colnames(q)[1:2]<- c('p1', 'p2')
+colnames(q)[5]<- 'merit'
+
+qb<- q
+qb$p1<- q$p2
+qb$p2<- q$p1
+tball<- rbind(q, qb)
+tball$timesMade<- as.character(tball$timesMade)
+tball$timesMade[which(tball$timesMade=='0')]<- ""
+tball$select<- ''
+tball[which(tball$rank<179), 'select']<- 'O'
+#make image
+tball$p1<- factor(as.character(tball$p1), levels=as.character(unique(sort(as.numeric(tball$p1)))))
+tball$p2<- factor(as.character(tball$p2), levels=as.character(unique(sort(as.numeric(tball$p2)))))
+pal <- adjust_luminance(wes_palette("Zissou1", 100, type = "continuous"),2)
+p <- ggplot(tball, aes(p1, p2)) + geom_tile(aes(fill = merit), colour = "black") +
+  geom_text(aes(label = timesMade)) +
+  scale_fill_gradientn(colours =pal, na.value="white")
+p + geom_text(aes(label = select)) 
