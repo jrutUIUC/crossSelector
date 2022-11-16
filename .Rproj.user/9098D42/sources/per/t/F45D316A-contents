@@ -15,6 +15,10 @@ data(crossRank22_23)
 q<- q[,c('V1no', 'V2no', 'V1', 'V2','nmvec', 'rank', 'timesMade')]
 colnames(q)[1:2]<- c('p1', 'p2')
 colnames(q)[5]<- 'merit'
+qb<- q
+qb$p1<- q$p2
+qb$p2<- q$p1
+q<- rbind(q, qb)
 
 #function to id the best cross combination given possible females and males
 idTop<- function(males, females, q){
@@ -46,14 +50,10 @@ matchParents<- function(q, males, females, crossesMade, maxRepeat){
             q[rowIx, 'timesMade']<- q[rowIx, 'timesMade']+1
         }
     }
-    
-    qb<- q
-    qb$p1<- q$p2
-    qb$p2<- q$p1
-    tball<- rbind(q, qb)
+    tball<- q
     tball$timesMade<- as.character(tball$timesMade)
     tball$timesMade[which(tball$timesMade=='0')]<- ""
-    
+
     #make image
     tball$p1<- factor(as.character(tball$p1), levels=as.character(unique(sort(as.numeric(tball$p1)))))
     tball$p2<- factor(as.character(tball$p2), levels=as.character(unique(sort(as.numeric(tball$p2)))))
@@ -61,21 +61,20 @@ matchParents<- function(q, males, females, crossesMade, maxRepeat){
     p <- ggplot(tball, aes(p1, p2)) + geom_tile(aes(fill = merit), colour = "black") +
         geom_text(aes(label = timesMade)) +
         scale_fill_gradientn(colours =pal, na.value="white")
-    
-    
+
     #eliminate the value of crosses already repeated 'maxRepeat' number of times
     ixrm<- which(q$timesMade>=maxRepeat)
     if(length(ixrm)>0){
         q<- q[-ixrm,]
     }
-    
+
     #determine which crosses to make
     p1<- c()
     p2<- c()
     q0<- q
     while(length(males)>0 & length(females)>0){
         top<- idTop(males, females, q)
-        
+
         #track the cross as made
         if(nrow(na.omit(top))>0){
             rowIx<- c(intersect(which(top$p1==q$p1), which(top$p2==q$p2)),intersect(which(top$p1==q$p2), which(top$p2==q$p1)))
@@ -84,7 +83,7 @@ matchParents<- function(q, males, females, crossesMade, maxRepeat){
                 q<- q[-rowIx,]
             }
         }
-        
+
         #record crosses and remove the males and females from the possible list
         if(nrow(na.omit(top))>0){
             maleRm<- top[1,'p2']
@@ -104,17 +103,17 @@ matchParents<- function(q, males, females, crossesMade, maxRepeat){
     tab<- tab[order(tab$rank, decreasing=FALSE),]
     tab$p1<- as.character(tab$p1)
     tab$p2<- as.character(tab$p2)
-    
+
     #Add crosses to plot
     frames <- data.frame(p1 = c(tab$p1,tab$p2),
                          p2 = c(tab$p2, tab$p1))
     p<- p+ geom_tile(data=frames,fill="red", width=0.3)
     p<- p+ geom_tile(data=frames,fill="red", height=0.3)
-    
+
     #return results
     tab<- unique(tab)
     return(list(tab=tab, p=p))
-    
+
 }
 
 ### Run algorithm
@@ -148,20 +147,20 @@ ui <- pageWithSidebar(
             tabPanel("Plot", plotOutput("plot"))
         )
     )
-    
+
 )
 
 # Define server logic required
 server <- function(input, output) {
-    
-    
+
+
     dataInput <- reactive({
-        
+
         #inFile <- input$file1
         #if(!is.null(inFile)){
         #  q<- read.csv(input$file1$datapath)
         #}
-        
+
         #males and females
         #infile <- input$femalesmales
         #gs4_deauth()
@@ -180,7 +179,7 @@ server <- function(input, output) {
         }
         males<- as.numeric(males)
         females<- as.numeric(females)
-        
+
         #crosses made
         infileCrosses <- input$crossesMade
         if(!is.null(infileCrosses)){
@@ -188,19 +187,19 @@ server <- function(input, output) {
         }else{
             crossesMade<-""
         }
-        
+
         maxRepeat<- as.numeric(input$maxRepeat)
         tab<- matchParents(q, males, females, crossesMade, maxRepeat)
     })
-    
+
     output$table <- renderTable({
         dataInput()[[1]]
     }, rownames=FALSE)
-    
+
     output$plot <- renderPlot({
         dataInput()[[2]]
     })
-    
+
 }
 
 # Run the application

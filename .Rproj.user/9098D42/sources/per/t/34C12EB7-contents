@@ -1,0 +1,13 @@
+load("/Users/jrut/Documents/GitHub/crossSelector/data/crossRank.RData")
+setwd("~/Documents/GitHub/Wheat-Selection-Decisions-2022")
+q2<- read.csv('cross rankings fall 2022.csv')
+V1<- matrix(unlist(strsplit(as.character(q2$cross), split=" x ")), nrow=2)[1,]
+V2<- matrix(unlist(strsplit(as.character(q2$cross), split=" x ")), nrow=2)[2,]
+q2$V1<- V1
+q2$V2<- V2
+q2<- q2[,c('p1','p2', 'V1', 'V2', 'netMerit', 'rank')]
+q2$timesMade<- 0
+colnames(q2)<- colnames(q)
+q<- q2
+rm(q2)
+save.image("/Users/jrut/Documents/GitHub/crossSelector/data/crossRank.RData")
