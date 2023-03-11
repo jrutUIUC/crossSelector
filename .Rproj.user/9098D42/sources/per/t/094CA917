@@ -19,7 +19,8 @@
         "object": "q",
         "environment": "",
         "contentUrl": "grid_resource/gridviewer.html?env=&obj=q&cache_key=3B350516&max_cols=50",
-        "preview": 0
+        "preview": 0,
+        "Source": "Source"
     },
     "folds": "",
     "lastKnownWriteTime": 140441385827696,

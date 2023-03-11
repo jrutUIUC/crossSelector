@@ -19,7 +19,8 @@
         "object": "book",
         "environment": "",
         "contentUrl": "grid_resource/gridviewer.html?env=&obj=book&cache_key=3B239E85&max_cols=50",
-        "preview": "0"
+        "preview": "0",
+        "Source": "Source"
     },
     "folds": "",
     "lastKnownWriteTime": 2334675642021538124,
