@@ -1,0 +1,22 @@
+setwd("~/Documents/Wheat/2023/vernalization study")
+lst<- read.csv('List for vernalization study.csv')[1:17,]
+
+### randomize the experiment
+library(agricolae)
+set.seed(100)
+vrnTime<- paste(c(5:10), 'wk', sep="")
+outdesign <-design.crd(trt=vrnTime, r=17, serie=1)
+book<-outdesign$book
+
+#add entry names
+entrylist<- unique(lst[,c('name', 'entry')])
+colnames(book)[2]<- 'entry'
+book<- merge(entrylist, book, by='entry', all=TRUE)
+
+#shuffle plot number
+book$plots<- book$plots-10
+book$plots<- sample(book$plots)
+
+#write book
+write.csv(book, 'vrnstudy_book.csv')
+
