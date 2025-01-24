@@ -1,1 +1,62 @@
 load("/Users/jrut/Library/Mobile Documents/com~apple~CloudDocs/Documents/GitHub/crossSelector/data/crossRank23_24.RData")
+load("/Users/jrut/Library/Mobile Documents/com~apple~CloudDocs/Documents/GitHub/crossSelector/data/crossRank24_25.RData")
+ls()
+head(crossRank24_25)
+q<- read.csv('crosses made fall24 (2).csv')
+head(q)
+cx<- paste(crossRank24_25$p1, crossRank24_25$p2, sep="x")
+cs
+cx
+cx2<- paste(crossRank24_25$p2, crossRank24_25$p1, sep="x")
+cx %in% q[,1]
+cx %in% q[,1] & cx2 %in% q[,1]
+which(cx %in% q[,1] & cx2 %in% q[,1])
+cx[which(cx %in% q[,1] & cx2 %in% q[,1])]
+245+13
+cx[which(cx !%in% q[,1] & cx2 !%in% q[,1])]
+cx !%in% q[,1]
+cx %in% q[,1]
+cx2 %in% q[,1]
+!cx2 %in% q[,1]
+as.numeric(!cx2 %in% q[,1])
+as.numeric(cx2 %in% q[,1])
+as.numeric(cx2 %in% q[,1]) + as.numeric(cx %in% q[,1])
+which(as.numeric(cx2 %in% q[,1]) + as.numeric(cx %in% q[,1])==0)
+cx[which(as.numeric(cx2 %in% q[,1]) + as.numeric(cx %in% q[,1])==0)]
+crossesLeft<- cx[which(as.numeric(cx2 %in% q[,1]) + as.numeric(cx %in% q[,1])==0)]
+crossesLeft
+strsplit(crossesLeft, split="x")
+unlist(strsplit(crossesLeft, split="x"))
+table(unlist(strsplit(crossesLeft, split="x")))
+write.csv(crossesLeft, file='crossesLeft.csv')
+write.csv(table(unlist(strsplit(crossesLeft, split="x"))), file='parentsLeftTable.csv')
+crossesLeft
+load("/Users/jrut/Library/Mobile Documents/com~apple~CloudDocs/Documents/GitHub/crossSelector/data/crossRank24_25.RData")
+q<- read.csv('crossesmade24v2.csv')
+cx<- paste(crossRank24_25$p1, crossRank24_25$p2, sep="x")
+cx2<- paste(crossRank24_25$p2, crossRank24_25$p1, sep="x")
+crossesLeft<- cx[which(as.numeric(cx2 %in% q[,1]) + as.numeric(cx %in% q[,1])==0)]
+crossesLeft
+load("/Users/jrut/Library/Mobile Documents/com~apple~CloudDocs/Documents/GitHub/crossSelector/data/crossRank24_25.RData")
+ls()
+head(crossRank24_25)
+load("/Users/jrut/Library/Mobile Documents/com~apple~CloudDocs/Documents/GitHub/crossSelector/data/crossRank25_Oat.RData")
+ls()
+head(parents)
+head(parents1)
+head(rank1)
+str(rank1)
+ls()
+rm(parents)
+rm(parents1)
+save( rank1, "/Users/jrut/Library/Mobile Documents/com~apple~CloudDocs/Documents/GitHub/crossSelector/data/crossRank25_Oat.RData")
+save( rank1, "crossRank25_Oat.RData")
+setwd("/Users/jrut/Library/Mobile Documents/com~apple~CloudDocs/Documents/GitHub/crossSelector/data/")
+save(rank1, "crossRank25_Oat.RData")
+?save
+save("crossRank25_Oat.RData", rank1)
+save(file="crossRank25_Oat.RData", rank1)
+load("/Users/jrut/Library/Mobile Documents/com~apple~CloudDocs/Documents/GitHub/crossSelector/data/crossRank23_Oat.RData")
+load("/Users/jrut/Library/Mobile Documents/com~apple~CloudDocs/Documents/GitHub/crossSelector/data/crossRank25_Oat.RData")
+ls()
+head(rank1)
