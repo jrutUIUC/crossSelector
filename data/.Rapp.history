@@ -60,3 +60,6 @@ load("/Users/jrut/Library/Mobile Documents/com~apple~CloudDocs/Documents/GitHub/
 load("/Users/jrut/Library/Mobile Documents/com~apple~CloudDocs/Documents/GitHub/crossSelector/data/crossRank25_Oat.RData")
 ls()
 head(rank1)
+load("/Users/jrut/Library/Mobile Documents/com~apple~CloudDocs/Documents/GitHub/crossSelector/data/crossRank25_Oat.RData")
+ls()
+head(rank)
